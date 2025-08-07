@@ -71,4 +71,9 @@ function decodeAllXdrStrings(obj) {
 }
 
 const decodedResult = decodeAllXdrStrings(result);
+fs.writeFileSync(
+	"decoded-result.json",
+	JSON.stringify(decodedResult, null, 2),
+	"utf8"
+);
 console.dir(decodedResult, { depth: null });
