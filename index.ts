@@ -85,3 +85,44 @@ export function xdrToParsed(data: XdrData, context?: Context): XdrData {
 
 	return decodeRecursive(data);
 }
+
+export type XdrTypeName =
+	| "TransactionEnvelope"
+	| "TransactionResult"
+	| "TransactionMeta"
+	| "DiagnosticEvent"
+	| "TransactionEvent"
+	| "ContractEvent"
+	| "ScVal"
+	| "LedgerKey"
+	| "LedgerEntryData"
+	| "LedgerHeaderHistoryEntry"
+	| "DiagnosticEvent"
+	| "LedgerCloseMeta"
+	| "SorobanTransactionData"
+	| "ConfigSettingContractHistoricalDataV0";
+
+/**
+ * Decodes a single XDR string using a provided XDR type name.
+ *
+ * @param xdr - The base64-encoded XDR string.
+ * @param type - The name of the XDR type to decode.
+ * @returns The decoded object or the original string if decoding fails.
+ */
+export function parseXdrString(xdr: string, type: XdrTypeName): unknown {
+	if (!xdr || !type) return xdr;
+
+	const XdrType = (StellarXDR as Record<string, any>)[type];
+
+	if (!XdrType || typeof XdrType.fromXDR !== "function") {
+		console.warn(`⚠️ Invalid or unknown XDR type: ${type}`);
+		return xdr;
+	}
+
+	try {
+		return XdrType.fromXDR(xdr, "base64");
+	} catch (err: any) {
+		console.warn(`⚠️ Failed to decode: ${err.message}`);
+		return xdr;
+	}
+}
